@@ -19,7 +19,8 @@ config/.env
 # Google Cloud credentials
 config/google-service-account.json
 config/*service-account*.json
-*.json
+*service-account*.json
+Google cloud ai-meetmind-*.json
 
 # Build outputs
 dist/
