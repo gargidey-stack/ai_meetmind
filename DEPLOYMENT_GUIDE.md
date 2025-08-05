@@ -20,14 +20,85 @@
    ```
 
 ### **Step 3: Deploy to Vercel**
+
+#### **Option A: Automatic Deployment (Recommended)**
+The project includes a pre-configured `vercel.json` file that handles the deployment automatically.
+
 1. **Go to** https://vercel.com/
 2. **Sign up/Login** with your GitHub account
 3. **Click "New Project"**
 4. **Import** your AI MeetMind repository
 5. **Configure** the project settings:
    - **Framework Preset**: Other
-   - **Root Directory**: Leave empty (.)
-   - **Build Command**: `npm run install:all && npm run frontend:build`
+   - **Root Directory**: Leave empty (.) - **Important: Do NOT set to frontend/**
+   - **Build Command**: Leave empty (uses vercel.json configuration)
+   - **Output Directory**: Leave empty (uses vercel.json configuration)
+   - **Install Command**: Leave empty (uses vercel.json configuration)
+
+## 📋 Vercel Configuration Explained
+
+The project includes a `vercel.json` file with the following configuration:
+
+```json
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "backend/server.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "frontend/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/backend/server.js"
+    },
+    {
+      "src": "/uploads/(.*)",
+      "dest": "/backend/server.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/frontend/dist/$1"
+    }
+  ]
+}
+```
+
+### **What this configuration does:**
+- **Backend Build**: Uses `@vercel/node` to deploy the Express.js backend as serverless functions
+- **Frontend Build**: Uses `@vercel/static-build` to build the React app with Vite
+- **API Routing**: All `/api/*` requests are routed to the backend server
+- **File Uploads**: All `/uploads/*` requests are routed to the backend server
+- **Frontend Serving**: All other requests serve the built React app from `frontend/dist`
+
+### **Why NOT to set Root Directory to frontend/:**
+- Setting root directory to `frontend/` would only deploy the frontend
+- The backend would not be deployed, breaking API functionality
+- The routing configuration in `vercel.json` would be ignored
+- You'd lose the full-stack deployment capability
+
+#### **Option B: Manual Configuration**
+If you need to configure manually or the automatic setup doesn't work:
+
+1. **Framework Preset**: Other
+2. **Root Directory**: Leave as `.` (root)
+3. **Build Command**: `cd frontend && npm run build`
+4. **Output Directory**: `frontend/dist`
+5. **Install Command**: `npm install && cd frontend && npm install && cd ../backend && npm install`
+
+#### **Important Vercel Configuration Notes:**
+- ✅ **DO NOT** set root directory to `frontend/` - this will break the full-stack setup
+- ✅ The `vercel.json` file handles both frontend and backend deployment
+- ✅ API routes will be available at `/api/*` endpoints
+- ✅ Frontend will be served from the root domain
    - **Output Directory**: `frontend/dist`
 
 ### **Step 4: Environment Variables**
